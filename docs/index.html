@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Secuenciador - Pixelar</title>
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+    <body>
+
+        <h1>Secuenciador - Pixelar</h1>
+
+        <div class="toolbar">
+            <button id="add-sequencer" title="Agregar pista">+</button>
+            <button id="global-play-btn" title="Play/Pause global">All Play</button>
+
+            <label class="toolbar-switch" title="Auto sincronizacion">
+                <input type="checkbox" id="sync-switch" /> SYNC
+            </label>
+
+            <div id="global-volume" class="toolbar-slider"></div>
+
+            <button id="export-btn" title="Exportar proyecto">Exportar</button>
+            <button id="import-btn" title="Importar proyecto">Importar</button>
+            <button id="rec-btn" title="Grabar la mezcla en tiempo real">REC</button>
+            <button id="help-btn" title="Ayuda">?</button>
+
+            <input type="file" id="import-file" accept=".json" style="display:none" />
+        </div>
+
+        <div id="sequencers-container"></div>
+
+        <div id="help-panel" class="hidden">
+            <button id="help-close">x</button>
+
+            <h2>Concepto</h2>
+            <p>
+                Este secuenciador recorre una matriz de pixeles de izquierda a derecha y de arriba a abajo.
+                Cada pixel es un paso. El brillo del pixel, de 0 a 255, controla el volumen de la nota.
+                La frecuencia y la forma de onda son fijas por pista, para generar texturas ritmicas.
+                Para crear capas o voces distintas, agrega varias pistas.
+            </p>
+
+            <h2>Barra global</h2>
+            <ul>
+                <li>+: agrega una pista nueva.</li>
+                <li>All Play / All Pause: reproduce o pausa todas las pistas.</li>
+                <li>SYNC: sincronizacion automatica. Cuando esta activo, al activarlo, reanudar All Play o crear una pista nueva, todas las pistas vuelven a x=0.</li>
+                <li>VOL: volumen general de la mezcla y de la grabacion.</li>
+                <li>Exportar: guarda el proyecto completo en JSON.</li>
+                <li>Importar: carga un proyecto completo desde JSON.</li>
+                <li>REC: graba la mezcla en tiempo real y descarga un archivo WAV al detener.</li>
+                <li>?: abre o cierra esta ayuda.</li>
+            </ul>
+
+            <h2>Sliders</h2>
+            <p>
+                Los controles deslizantes aparecen como botones con su valor actual.
+                Haz click en el valor para abrir un slider vertical.
+                Puedes arrastrar o escribir el valor directamente.
+                Enter cierra el slider.
+                Escape tambien.
+                Un click fuera del slider tambien lo cierra.
+            </p>
+
+            <h2>Foco</h2>
+            <p>
+                Los atajos de teclado se aplican sobre la pista enfocada.
+                Puedes hacer click sobre una pista para enfocarla, o usar las flechas arriba y abajo.
+            </p>
+
+            <h2>Pista</h2>
+            <ul>
+                <li>El boton de arriba a la izquierda elimina la pista.</li>
+                <li>El boton de abajo a la izquierda muestra u oculta los controles.</li>
+                <li>Cuando los controles estan ocultos, aparece un boton Play/Pause abajo a la derecha.</li>
+                <li>Click izquierdo sobre el canvas pinta.</li>
+                <li>Click derecho borra.</li>
+            </ul>
+
+            <h2>MATRIX</h2>
+            <ul>
+                <li>WxH: dimensiones de la matriz, por ejemplo 16x16. Presiona Enter para aplicar.</li>
+                <li>ZOOM: escala visual del pixel.</li>
+                <li>GRIS: valor de dibujo, de negro a blanco.</li>
+                <li>PINCEL: medida del pincel.</li>
+                <li>Limpiar: pinta toda la matriz de negro.</li>
+                <li>Rellenar: pinta toda la matriz con el GRIS actual.</li>
+            </ul>
+
+            <h2>SOUND</h2>
+            <ul>
+                <li>ONDA: forma de onda o ruido. Incluye ruido blanco, rosa y marron.</li>
+                <li>FREQ: frecuencia base de la pista.</li>
+                <li>CICLO: segundos para recorrer una fila completa.</li>
+                <li>FADE: suavizado de cada nota.</li>
+                <li>PAN: paneo, de -1 a 1.</li>
+                <li>Play / Pause: reproduce o pausa la pista.</li>
+                <li>Rev: invierte la direccion de lectura.</li>
+                <li>Stop: detiene y vuelve al inicio.</li>
+                <li>M: mute de pista.</li>
+                <li>S: solo. Si hay pistas en solo, solo se escuchan esas.</li>
+            </ul>
+
+            <h2>FX</h2>
+            <ul>
+                <li>FILTRO: OFF, LP, HP o BP.</li>
+                <li>CUT: frecuencia de corte del filtro.</li>
+                <li>Q: resonancia del filtro.</li>
+                <li>TIME: tiempo del delay.</li>
+                <li>FDBK: retroalimentacion del delay.</li>
+                <li>MIX: mezcla entre audio seco y delay.</li>
+            </ul>
+
+            <h2>Sincronizacion</h2>
+            <p>
+                SYNC esta apagado por defecto.
+                Cuando lo activas, todas las pistas se alinean en x=0.
+                Mientras esta activo, reanudar All Play o crear una pista nueva vuelve a alinear todas las pistas en x=0.
+                La alineacion tambien reinicia las voces activas, por lo que las fases de los generadores vuelven a comenzar.
+            </p>
+
+            <h2>Grabacion</h2>
+            <p>
+                REC comienza a grabar la salida global en tiempo real.
+                Incluye todas las pistas, el volumen global, mute, solo, paneo y efectos.
+                Al presionar REC nuevamente, se detiene y descarga un archivo WAV.
+            </p>
+
+            <h2>Atajos de teclado</h2>
+            <ul>
+                <li>Flecha arriba / abajo: cambiar foco entre pistas.</li>
+                <li>P: play/pause de la pista enfocada.</li>
+                <li>R: invertir direccion.</li>
+                <li>S: detener.</li>
+                <li>Delete o Backspace: eliminar pista.</li>
+                <li>O: forma de onda.</li>
+                <li>F: frecuencia.</li>
+                <li>C: ciclo.</li>
+                <li>D: dimensiones.</li>
+                <li>L: gris.</li>
+                <li>A: pincel.</li>
+                <li>Z: zoom.</li>
+            </ul>
+        </div>
+
+        <script src="js/utils.js"></script>
+        <script src="js/vslider.js"></script>
+        <script src="js/audio-engine.js"></script>
+        <script src="js/recorder.js"></script>
+        <script src="js/pixel-grid.js"></script>
+        <script src="js/track-fx.js"></script>
+        <script src="js/render-loop.js"></script>
+        <script src="js/sequencer.js"></script>
+        <script src="js/sequencer-view.js"></script>
+        <script src="js/help-panel.js"></script>
+        <script src="js/keyboard-manager.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/main.js"></script>
+
+    </body>
+</html>
